@@ -4,6 +4,19 @@
  * Smart contract for distributing mining profits between shareholders after
  * deducting power costs in USD. ETH/USD exchange rate is determined by
  * consulting MakerDAO's price oracle.
+ *
+ * Example usage sequence:
+ *  - creator:
+ *    - create EtherSplitter contract
+ *    - set_power_cost_payout_address(0xabcd...)
+ *    - set_power_cost((13/*cents/kWh*/ * 2000/*W*/ * FP_ONE)
+ *                     / (100/*cents/USD*/ * 1000/*W/kW*/))
+ *    - set_shareholder_weight(0x1234..., 75)
+ *    - set_shareholder_weight(0x5678..., 25)
+ *  - anyone:
+ *    - distribute()  <- updates ETH/USD price, pays for power, shares profits
+ *  - any payee:
+ *    - withdraw()  <- withdaws any owed funds (profit or power payouts)
  */
 
 pragma solidity ^0.4.21;
@@ -25,10 +38,6 @@ contract DSValue {
     }
 }
 
-/*
- * Example deployment and usage sequence:
- *
- */
 contract EtherSplitter {
     // The creator has special trusted powers over this contract. The creator
     // can:
